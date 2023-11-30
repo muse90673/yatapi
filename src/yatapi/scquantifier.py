@@ -11,6 +11,6 @@ class SCQuantifier:
         return self.value
 
 
-AT_LEAST = SCQuantifier('At least')
-AT_MOST = SCQuantifier('At most')
-EXACTLY = SCQuantifier('Exactly')
+AT_LEAST: SCQuantifier = SCQuantifier('At least')
+AT_MOST: SCQuantifier = SCQuantifier('At most')
+EXACTLY: SCQuantifier = SCQuantifier('Exactly')

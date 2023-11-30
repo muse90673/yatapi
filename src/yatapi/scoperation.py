@@ -11,6 +11,6 @@ class SCOperation:
         return self.value
 
 
-ADD = SCOperation('Add')
-SET_TO = SCOperation('Set To')
-SUBTRACT = SCOperation('Subtract')
+ADD: SCOperation = SCOperation('Add')
+SET_TO: SCOperation = SCOperation('Set To')
+SUBTRACT: SCOperation = SCOperation('Subtract')

@@ -11,7 +11,7 @@ class SCSwitchAction:
         return self.value
 
 
-CLEAR = SCSwitchAction('clear')
-RANDOMIZE = SCSwitchAction('randomize')
-SET = SCSwitchAction('set')
-TOGGLE = SCSwitchAction('toggle')
+CLEAR: SCSwitchAction = SCSwitchAction('clear')
+RANDOMIZE: SCSwitchAction = SCSwitchAction('randomize')
+SET: SCSwitchAction = SCSwitchAction('set')
+TOGGLE: SCSwitchAction = SCSwitchAction('toggle')

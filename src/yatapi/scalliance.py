@@ -11,6 +11,6 @@ class SCAlliance:
         return self.value
 
 
-ALLIED_VICTORY = SCAlliance('Allied Victory')
-ALLY = SCAlliance('Ally')
-ENEMY = SCAlliance('Enemy')
+ALLIED_VICTORY: SCAlliance = SCAlliance('Allied Victory')
+ALLY: SCAlliance = SCAlliance('Ally')
+ENEMY: SCAlliance = SCAlliance('Enemy')

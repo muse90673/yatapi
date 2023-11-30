@@ -11,6 +11,6 @@ class SCResource:
         return self.value
 
 
-GAS = SCResource('gas')
-ORE = SCResource('ore')
-ORE_AND_GAS = SCResource('ore and gas')
+GAS: SCResource = SCResource('gas')
+ORE: SCResource = SCResource('ore')
+ORE_AND_GAS: SCResource = SCResource('ore and gas')

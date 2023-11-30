@@ -11,4 +11,4 @@ class SCVisibility:
         return self.value
 
 
-ALWAYS_DISPLAY = SCVisibility('Always Display')
+ALWAYS_DISPLAY: SCVisibility = SCVisibility('Always Display')

@@ -211,7 +211,8 @@ class Trigger:
         return self.compile()
 
 
-def compile_triggers(triggers: typing.List[Trigger], jsondata: typing.Optional[typing.Dict]=None, newline: str=WIN_NEWLINE):
+def compile_triggers(triggers: typing.List[Trigger], jsondata: typing.Optional[typing.Dict] = None,
+                     newline: str = WIN_NEWLINE) -> str:
     """Compiles a set of triggers ready for copy into SCMDraft.
 
     :param triggers: list of Triggers ready to be compiled to TrigEdit format

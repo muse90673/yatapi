@@ -11,6 +11,6 @@ class SCState:
         return self.value
 
 
-DISABLED = SCState('disabled')
-ENABLED = SCState('enabled')
-TOGGLE = SCState('toggle')
+DISABLED: SCState = SCState('disabled')
+ENABLED: SCState = SCState('enabled')
+TOGGLE: SCState = SCState('toggle')

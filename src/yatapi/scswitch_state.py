@@ -11,5 +11,5 @@ class SCSwitchState:
         return self.value
 
 
-CLEARED = SCSwitchState('not set')
-SET = SCSwitchState('set')
+CLEARED: SCSwitchState = SCSwitchState('not set')
+SET: SCSwitchState = SCSwitchState('set')
