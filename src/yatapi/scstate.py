@@ -13,4 +13,4 @@ class SCState:
 
 DISABLED = SCState('disabled')
 ENABLED = SCState('enabled')
-NOT_SET = SCState('not set')
+TOGGLE = SCState('toggle')

@@ -13,3 +13,4 @@ class SCResource:
 
 GAS = SCResource('gas')
 ORE = SCResource('ore')
+ORE_AND_GAS = SCResource('ore and gas')

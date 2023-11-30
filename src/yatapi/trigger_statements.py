@@ -7,17 +7,20 @@ import inspect
 import re
 import typing
 
-from yatapi.scaction import SCAction
 from yatapi.scalliance import SCAlliance
+from yatapi.sccount import SCCount
 from yatapi.scoperation import SCOperation
 from yatapi.scorder import SCOrder
 from yatapi.scplayer import SCPlayer
 from yatapi.scquantifier import SCQuantifier
 from yatapi.scresource import SCResource
+from yatapi.scscore import SCScore
 from yatapi.scscript import SCScript
 from yatapi.scstate import SCState
+from yatapi.scswitch_action import SCSwitchAction
+from yatapi.scswitch_state import SCSwitchState
 from yatapi.scunit import SCUnit
-from yatapi.scvisibility import SCVisibility, ALWAYS_DISPLAY
+from yatapi.scvisibility import ALWAYS_DISPLAY
 
 
 class Statement(abc.ABC):
@@ -129,14 +132,52 @@ class Command(Condition):
         self.count = count
 
 
+class CommandTheLeast(Condition):
+    _trigedit_name = "Command the Least"
+    _quoted_fields = frozenset(["unit"])
+
+    def __init__(self, unit: SCUnit):
+        super().__init__()
+        self.unit = unit
+
+
+class CommandTheLeastAt(Condition):
+    _trigedit_name = "Command the Least At"
+    _quoted_fields = frozenset(["unit", "location"])
+
+    def __init__(self, unit: SCUnit, location: str):
+        super().__init__()
+        self.unit = unit
+        self.location = location
+
+
+class CommandTheMost(Condition):
+    _trigedit_name = "Command the Most"
+    _quoted_fields = frozenset(["unit"])
+
+    def __init__(self, unit: SCUnit):
+        super().__init__()
+        self.unit = unit
+
+
+class CommandsTheMostAt(Condition):
+    _trigedit_name = "Commands the Most At"
+    _quoted_fields = frozenset(["unit", "location"])
+
+    def __init__(self, unit: SCUnit, location: str):
+        super().__init__()
+        self.unit = unit
+        self.location = location
+
+
 class CountdownTimer(Condition):
     _trigedit_name = "Countdown Timer"
     _quoted_fields = frozenset()
 
-    def __init__(self, quantifier: SCQuantifier, count: int):
+    def __init__(self, quantifier: SCQuantifier, seconds: int):
         super().__init__()
         self.quantifier = quantifier
-        self.count = count
+        self.seconds = seconds
 
 
 class Deaths(Condition):
@@ -151,13 +192,80 @@ class Deaths(Condition):
         self.count = count
 
 
+class ElapsedTime(Condition):
+    _trigedit_name = "Elapsed Time"
+    _quoted_fields = frozenset()
+
+    def __init__(self, quantifier: SCQuantifier, seconds: int):
+        super().__init__()
+        self.quantifier = quantifier
+        self.seconds = seconds
+
+
 class HighestScore(Condition):
     _trigedit_name = "Highest Score"
     _quoted_fields = frozenset()
 
-    def __init__(self, score: str):
+    def __init__(self, score: SCScore):
         super().__init__()
         self.score = score
+
+
+class Kill(Condition):
+    _trigedit_name = "Kill"
+    _quoted_fields = frozenset(["player", "unit"])
+
+    def __init__(self, player: SCPlayer, unit: SCUnit, quantifier: SCQuantifier, count: int):
+        super().__init__()
+        self.player = player
+        self.unit = unit
+        self.quantifier = quantifier
+        self.count = count
+
+
+class LeastKills(Condition):
+    _trigedit_name = "Least Kills"
+    _quoted_fields = frozenset(["unit"])
+
+    def __init__(self, unit: SCUnit):
+        super().__init__()
+        self.unit = unit
+
+
+class LeastResources(Condition):
+    _trigedit_name = "Least Resources"
+    _quoted_fields = frozenset()
+
+    def __init__(self, resource: SCResource):
+        super().__init__()
+        self.resource = resource
+
+
+class LowestScore(Condition):
+    _trigedit_name = "Lowest Score"
+    _quoted_fields = frozenset()
+
+    def __init__(self, score: SCScore):
+        super().__init__()
+        self.score = score
+
+
+class MostKills(Condition):
+    _trigedit_name = "Most Kills"
+    _quoted_fields = frozenset(["unit"])
+
+    def __init__(self, unit: SCUnit):
+        super().__init__()
+        self.unit = unit
+
+
+class MostResources(Condition):
+    _trigedit_name = "Most Resources"
+    _quoted_fields = frozenset()
+
+    def __init__(self, resource: SCResource):
+        super().__init__()
+        self.resource = resource
 
 
 class Never(Condition):
@@ -168,11 +276,34 @@ class Never(Condition):
         super().__init__()
 
 
+class Opponents(Condition):
+    _trigedit_name = "Opponents"
+    _quoted_fields = frozenset(["player"])
+
+    def __init__(self, player: SCPlayer, quantifier: SCQuantifier, count: int):
+        super().__init__()
+        self.player = player
+        self.quantifier = quantifier
+        self.count = count
+
+
+class Score(Condition):
+    _trigedit_name = "Score"
+    _quoted_fields = frozenset(["player"])
+
+    def __init__(self, player: SCPlayer, score: SCScore, quantifier: SCQuantifier, amount: int):
+        super().__init__()
+        self.player = player
+        self.score = score
+        self.quantifier = quantifier
+        self.amount = amount
+
+
 class Switch(Condition):
     _trigedit_name = "Switch"
     _quoted_fields = frozenset(["switch"])
 
-    def __init__(self, switch: str, state: SCState):
+    def __init__(self, switch: str, state: SCSwitchState):
         super().__init__()
         self.switch = switch
         self.state = state
@@ -233,27 +364,30 @@ class DisplayTextMessage(Action):
     _trigedit_name = "Display Text Message"
     _quoted_fields = frozenset(["text"])
 
-    def __init__(self, text: str, visibility: SCVisibility=ALWAYS_DISPLAY):
+    def __init__(self, text: str):
         super().__init__()
         self.text = text
-        self.visibility = visibility
 
     def _get_values(self, pretty=False):
-        """Override due to TrigEdit order of (visibility, text) unintuitive, since the visibility parameter is unused.
+        """ Override the method to fill in the unused parameter. """
+        args = super()._get_values(pretty)
+        return [str(ALWAYS_DISPLAY)] + args
 
-        The __init__ reverse the TrigEdit order.  This corrects the order.
 
-        :param pretty:
-        :return:
-        """
-        return [str(self.visibility), self.text]
+class Draw(Action):
+    _trigedit_name = "Draw"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
 
 
 class GiveUnitsToPlayer(Action):
     _trigedit_name = "Give Units to Player"
     _quoted_fields = frozenset(["from_player", "to_player", "unit", "location"])
 
-    def __init__(self, from_player: SCPlayer, to_player: SCPlayer, unit: SCUnit, count: str, location: str):
+    def __init__(self, from_player: SCPlayer, to_player: SCPlayer, unit: SCUnit, count: typing.Union[int, SCCount],
+                 location: str):
         super().__init__()
         self.from_player = from_player
         self.to_player = to_player
@@ -276,7 +410,7 @@ class KillUnitAtLocation(Action):
     _trigedit_name = "Kill Unit At Location"
     _quoted_fields = frozenset(["player", "unit", "location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, count: str, location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, count: typing.Union[int, SCCount], location: str):
         super().__init__()
         self.player = player
         self.unit = unit
@@ -294,6 +428,26 @@ class LeaderBoardControl(Action):
         self.unit = unit
 
 
+class LeaderBoardControlAtLocation(Action):
+    _trigedit_name = "Leader Board Control At Location"
+    _quoted_fields = frozenset(["title", "unit", "location"])
+
+    def __init__(self, title: str, unit: SCUnit, location: str):
+        super().__init__()
+        self.title = title
+        self.unit = unit
+        self.location = location
+
+
+class LeaderBoardGreed(Action):
+    _trigedit_name = "Leaderboard Greed"
+    _quoted_fields = frozenset()
+
+    def __init__(self, amount: int):
+        super().__init__()
+        self.amount = amount
+
+
 class LeaderBoardKills(Action):
     _trigedit_name = "Leader Board Kills"
     _quoted_fields = frozenset(["title", "unit"])
@@ -308,10 +462,20 @@ class LeaderBoardPoints(Action):
     _trigedit_name = "Leader Board Points"
     _quoted_fields = frozenset(["title"])
 
-    def __init__(self, title: str, score: str):
+    def __init__(self, title: str, score: SCScore):
         super().__init__()
         self.title = title
         self.score = score
+
+
+class LeaderBoardResources(Action):
+    _trigedit_name = "Leader Board Resources"
+    _quoted_fields = frozenset(["title"])
+
+    def __init__(self, title: str, resource: SCResource):
+        super().__init__()
+        self.title = title
+        self.resource = resource
 
 
 class LeaderboardComputerPlayers(Action):
@@ -321,6 +485,62 @@ class LeaderboardComputerPlayers(Action):
     def __init__(self, state: SCState):
         super().__init__()
         self.state = state
+
+
+class LeaderboardGoalControl(Action):
+    _trigedit_name = "Leaderboard Goal Control"
+    _quoted_fields = frozenset(["title", "unit"])
+
+    def __init__(self, title: str, unit: SCUnit, count: int):
+        super().__init__()
+        self.title = title
+        self.unit = unit
+        self.count = count
+
+
+class LeaderboardGoalControlAtLocation(Action):
+    _trigedit_name = "Leaderboard Goal Control At Location"
+    _quoted_fields = frozenset(["title", "unit", "location"])
+
+    def __init__(self, title: str, unit: SCUnit, count: int, location: str):
+        super().__init__()
+        self.title = title
+        self.unit = unit
+        self.count = count
+        self.location = location
+
+
+class LeaderboardGoalKills(Action):
+    _trigedit_name = "Leaderboard Goal Kills"
+    _quoted_fields = frozenset(["title", "unit"])
+
+    def __init__(self, title: str, unit: SCUnit, count: int):
+        super().__init__()
+        self.title = title
+        self.unit = unit
+        self.count = count
+
+
+class LeaderboardGoalPoints(Action):
+    _trigedit_name = "Leaderboard Goal Points"
+    _quoted_fields = frozenset(["title"])
+
+    def __init__(self, title: str, score: SCScore, amount: int):
+        super().__init__()
+        self.title = title
+        self.score = score
+        self.amount = amount
+
+
+class LeaderboardGoalResources(Action):
+    _trigedit_name = "Leaderboard Goal Resources"
+    _quoted_fields = frozenset(["title"])
+
+    def __init__(self, title: str, amount: int, resource: SCResource):
+        super().__init__()
+        self.title = title
+        self.amount = amount
+        self.resource = resource
 
 
 class MinimapPing(Action):
@@ -336,11 +556,12 @@ class ModifyUnitEnergy(Action):
     _trigedit_name = "Modify Unit Energy"
     _quoted_fields = frozenset(["player", "unit", "location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, resource: SCResource, count: int, location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, percent: int, count: typing.Union[int, SCCount],
+                 location: str):
         super().__init__()
         self.player = player
         self.unit = unit
-        self.resource = resource
+        self.percent = percent
         self.count = count
         self.location = location
 
@@ -349,12 +570,13 @@ class ModifyUnitHangerCount(Action):
     _trigedit_name = "Modify Unit Hanger Count"
     _quoted_fields = frozenset(["player", "unit", "location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, percent: int, count: int, location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, hangar_count: int, unit_count: typing.Union[int, SCCount],
+                 location: str):
         super().__init__()
         self.player = player
         self.unit = unit
-        self.percent = percent
-        self.count = count
+        self.hangar_count = hangar_count
+        self.unit_count = unit_count
         self.location = location
 
 
@@ -362,7 +584,8 @@ class ModifyUnitHitPoints(Action):
     _trigedit_name = "Modify Unit Hit Points"
     _quoted_fields = frozenset(["player", "unit", "location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, percent: int, count: int, location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, percent: int, count: typing.Union[int, SCCount],
+                 location: str):
         super().__init__()
         self.player = player
         self.unit = unit
@@ -371,11 +594,24 @@ class ModifyUnitHitPoints(Action):
         self.location = location
 
 
+class ModifyUnitResourceAmount(Action):
+    _trigedit_name = "Modify Unit Resource Amount"
+    _quoted_fields = frozenset(["player", "location"])
+
+    def __init__(self, player: SCPlayer, amount: int, unit_count: typing.Union[int, SCCount], location: str):
+        super().__init__()
+        self.player = player
+        self.amount = amount
+        self.unit_count = unit_count
+        self.location = location
+
+
 class ModifyUnitShieldPoints(Action):
     _trigedit_name = "Modify Unit Shield Points"
     _quoted_fields = frozenset(["player", "unit", "location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, percent: int, count: int, location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, percent: int, count: typing.Union[int, SCCount],
+                 location: str):
         super().__init__()
         self.player = player
         self.unit = unit
@@ -400,7 +636,8 @@ class MoveUnit(Action):
     _trigedit_name = "Move Unit"
     _quoted_fields = frozenset(["player", "unit", "from_location", "to_location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, count: str, from_location: str, to_location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, count: typing.Union[int, SCCount], from_location: str,
+                 to_location: str):
         super().__init__()
         self.player = player
         self.unit = unit
@@ -409,27 +646,55 @@ class MoveUnit(Action):
         self.to_location = to_location
 
 
+class MuteUnitSpeech(Action):
+    _trigedit_name = "Mute Unit Speech"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
+
+
 class Order(Action):
     _trigedit_name = "Order"
-    _quoted_fields = frozenset(["player", "unit", "location1", "location"])
+    _quoted_fields = frozenset(["player", "unit", "location", "destination"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, location1: str, location: str, order: SCOrder):
+    def __init__(self, player: SCPlayer, unit: SCUnit, location: str, destination: str, order: SCOrder):
         super().__init__()
         self.player = player
         self.unit = unit
-        self.location1 = location1
         self.location = location
+        self.destination = destination
         self.order = order
+
+
+class PauseGame(Action):
+    _trigedit_name = "Pause Game"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
+
+
+class PauseTimer(Action):
+    _trigedit_name = "Pause Timer"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
 
 
 class PlayWav(Action):
     _trigedit_name = "Play WAV"
     _quoted_fields = frozenset(["wav"])
 
-    def __init__(self, wav: str, unknown_wav_arg: int):
+    def __init__(self, wav: str):
         super().__init__()
         self.wav = wav
-        self.unknown_wav_arg = unknown_wav_arg
+
+    def _get_values(self, pretty=False):
+        """ Override the method to fill in the unused parameter. """
+        args = super()._get_values(pretty)
+        return args + ['0']
 
 
 class PreserveTrigger(Action):
@@ -454,7 +719,7 @@ class RemoveUnitAtLocation(Action):
     _trigedit_name = "Remove Unit At Location"
     _quoted_fields = frozenset(["player", "unit", "location"])
 
-    def __init__(self, player: SCPlayer, unit: SCUnit, count: int, location: str):
+    def __init__(self, player: SCPlayer, unit: SCUnit, count: typing.Union[int, SCCount], location: str):
         super().__init__()
         self.player = player
         self.unit = unit
@@ -546,6 +811,15 @@ class SetMissionObjectives(Action):
         self.text = text
 
 
+class SetNextScenario(Action):
+    _trigedit_name = "Set Next Scenario"
+    _quoted_fields = frozenset(["scenario"])
+
+    def __init__(self, scenario: str):
+        super().__init__()
+        self.scenario = scenario
+
+
 class SetResources(Action):
     _trigedit_name = "Set Resources"
     _quoted_fields = frozenset(["player"])
@@ -562,11 +836,11 @@ class SetScore(Action):
     _trigedit_name = "Set Score"
     _quoted_fields = frozenset(["player"])
 
-    def __init__(self, player: SCPlayer, operation: SCOperation, count: int, score: str):
+    def __init__(self, player: SCPlayer, operation: SCOperation, amount: int, score: SCScore):
         super().__init__()
         self.player = player
         self.operation = operation
-        self.count = count
+        self.amount = amount
         self.score = score
 
 
@@ -574,10 +848,63 @@ class SetSwitch(Action):
     _trigedit_name = "Set Switch"
     _quoted_fields = frozenset(["switch"])
 
-    def __init__(self, switch: str, action: SCAction):
+    def __init__(self, switch: str, action: SCSwitchAction):
         super().__init__()
         self.switch = switch
         self.action = action
+
+
+class TalkingPortrait(Action):
+    _trigedit_name = "Talking Portrait"
+    _quoted_fields = frozenset(["unit"])
+
+    def __init__(self, unit: SCUnit, milliseconds: int):
+        super().__init__()
+        self.unit = unit
+        self.milliseconds = milliseconds
+
+
+class Transmission(Action):
+    _trigedit_name = "Transmission"
+    _quoted_fields = frozenset(["text", "unit", "location", "wav"])
+
+    def __init__(self, text: str, unit: SCUnit, location: str, operation: SCOperation, milliseconds: int, wav: str):
+        super().__init__()
+        self.text = text
+        self.unit = unit
+        self.location = location
+        self.operation = operation
+        self.milliseconds = milliseconds
+        self.wav = wav
+
+    def _get_values(self, pretty=False):
+        """ Override the method to fill in the unused parameter. """
+        args = super()._get_values(pretty)
+        return [str(ALWAYS_DISPLAY)] + args + ['0']
+
+
+class UnmuteUnitSpeech(Action):
+    _trigedit_name = "Unmute Unit Speech"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
+
+
+class UnpauseGame(Action):
+    _trigedit_name = "Unpause Game"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
+
+
+class UnpauseTimer(Action):
+    _trigedit_name = "Unpause Timer"
+    _quoted_fields = frozenset()
+
+    def __init__(self):
+        super().__init__()
 
 
 class Victory(Action):

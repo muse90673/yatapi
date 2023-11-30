@@ -11,4 +11,6 @@ class SCOrder:
         return self.value
 
 
+ATTACK = SCOrder('attack')
+MOVE = SCOrder('move')
 PATROL = SCOrder('patrol')

@@ -11,4 +11,4 @@ class SCCount:
         return self.value
 
 
-ALL = 'All'
+ALL = SCCount('All')
