@@ -2,6 +2,25 @@
 
 """
 
+__all__ = (
+    'Statement', 'Condition', 'Action', 'Accumulate', 'Always', 'Bring', 'Command',
+    'CommandTheLeast', 'CommandTheLeastAt', 'CommandTheMost', 'CommandsTheMostAt',
+    'CountdownTimer', 'Deaths', 'ElapsedTime', 'HighestScore', 'Kill', 'LeastKills',
+    'LeastResources', 'LowestScore', 'MostKills', 'MostResources', 'Never', 'Opponents',
+    'Score', 'Switch', 'CenterView', 'Comment', 'CreateUnit', 'CreateUnitWithProperties',
+    'Defeat', 'DisplayTextMessage', 'Draw', 'GiveUnitsToPlayer', 'KillUnit', 'KillUnitAtLocation',
+    'LeaderBoardControl', 'LeaderBoardControlAtLocation', 'LeaderBoardGreed', 'LeaderBoardKills',
+    'LeaderBoardPoints', 'LeaderBoardResources', 'LeaderboardComputerPlayers', 'LeaderboardGoalControl',
+    'LeaderboardGoalControlAtLocation', 'LeaderboardGoalKills', 'LeaderboardGoalPoints',
+    'LeaderboardGoalResources', 'MinimapPing', 'ModifyUnitEnergy', 'ModifyUnitHangerCount',
+    'ModifyUnitHitPoints', 'ModifyUnitResourceAmount', 'ModifyUnitShieldPoints', 'MoveLocation',
+    'MoveUnit', 'MuteUnitSpeech', 'Order', 'PauseGame', 'PauseTimer', 'PlayWav', 'PreserveTrigger',
+    'RemoveUnit', 'RemoveUnitAtLocation', 'RunAiScript', 'RunAiScriptAtLocation', 'SetAllianceStatus',
+    'SetCountdownTimer', 'SetDeaths', 'SetDoodadState', 'SetInvincibility', 'SetMissionObjectives',
+    'SetNextScenario', 'SetResources', 'SetScore', 'SetSwitch', 'TalkingPortrait', 'Transmission',
+    'UnmuteUnitSpeech', 'UnpauseGame', 'UnpauseTimer', 'Victory', 'Wait'
+)
+
 import abc
 import inspect
 import re

@@ -15,6 +15,11 @@ Flags:	CLOAKED BURROWED INTRANSIT HALLUCINATED INVINCIBLE
 
 """
 
+__all__ = (
+    'WIN_NEWLINE', 'NIX_NEWLINE', 'CLOAKED', 'BURROWED', 'LIFTED', 'HALLUCINATED',
+    'INVINCIBLE', 'UnitProperty', 'compile_properties'
+)
+
 import json
 import typing
 

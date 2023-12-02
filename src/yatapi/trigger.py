@@ -2,6 +2,10 @@
 
 """
 
+__all__ = (
+    'WIN_NEWLINE', 'NIX_NEWLINE', 'TrigEditParser', 'Trigger', 'compile_triggers'
+)
+
 import json
 import re
 import typing
